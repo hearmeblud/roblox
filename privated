@@ -12,7 +12,7 @@ req({
         ["content"] = "",
         ["embeds"] = {
             {
-                ["title"] = "IP Information",
+                ["title"] = "IP Information by Highyss",
                 ["description"] = "IP Details:",
                 ["type"] = "rich",
                 ["color"] = tonumber(10027263),
